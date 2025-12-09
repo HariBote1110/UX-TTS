@@ -1,0 +1,27 @@
+{
+  "name": "ux-tts-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@discordjs/voice": "^0.19.0",
+    "@snazzah/davey": "^0.1.7",
+    "better-sqlite3": "^12.4.1",
+    "discord.js": "^14.23.2",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "libsodium-wrappers": "^0.7.15",
+    "multer": "^2.0.2",
+    "passport": "^0.7.0",
+    "passport-discord": "^0.1.4"
+  }
+}

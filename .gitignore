@@ -1,0 +1,6 @@
+/node_modules
+/dist
+.DS_Store
+/audio_cache
+/database
+.env

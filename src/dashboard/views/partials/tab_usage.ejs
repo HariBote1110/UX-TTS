@@ -1,0 +1,33 @@
+<div class="tab-pane fade" id="content-usage">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card h-100">
+                <div class="card-header"><i class="bi bi-bar-chart-fill me-2"></i>今月の利用状況</div>
+                <div class="card-body">
+                    <h2 class="text-center mb-4"><%= Math.floor(usage.count).toLocaleString() %> <small class="fs-6 text-muted">文字</small></h2>
+                    <% if (limits.vvxThreshold > 0 && !usage.hasLicense) { 
+                        const vvxPercent = Math.min(100, (usage.count / limits.vvxThreshold) * 100);
+                        const vvxColor = vvxPercent >= 100 ? 'bg-danger' : (vvxPercent >= 80 ? 'bg-warning' : 'bg-primary');
+                    %>
+                        <p class="mb-1">VOICEVOX利用枠 <span class="float-end"><%= limits.vvxThreshold.toLocaleString() %>文字まで</span></p>
+                        <div class="progress mb-4"><div class="progress-bar <%= vvxColor %>" role="progressbar" style="width: <%= vvxPercent %>%"></div></div>
+                    <% } else if (usage.hasLicense) { %>
+                        <div class="alert alert-success text-center"><i class="bi bi-stars me-2"></i>プレミアムライセンス適用中 (無制限)</div>
+                    <% } else { %><p class="text-muted">VOICEVOX制限: なし</p><% } %>
+
+                    <% if (limits.totalLimit > 0 && !usage.hasLicense) { 
+                        const totalPercent = Math.min(100, (usage.count / limits.totalLimit) * 100);
+                        const totalColor = totalPercent >= 100 ? 'bg-danger' : 'bg-success';
+                    %>
+                        <p class="mb-1">全体上限 <span class="float-end"><%= limits.totalLimit.toLocaleString() %>文字まで</span></p>
+                        <div class="progress">
+                            <div class="progress-bar <%= totalColor %>" role="progressbar" style="width: <%= totalPercent %>%">
+                                <%= totalPercent.toFixed(1) %>%
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>設定 - <%= guild.name %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body { background-color: #2b2d31; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+        
+        /* サイドバー (デスクトップ用) */
+        .sidebar-desktop { 
+            background-color: #1e1f22; 
+            min-height: 100vh; 
+            padding: 20px; 
+            width: 280px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        /* コンテンツエリア (デスクトップ用) */
+        .content { 
+            padding: 30px; 
+            margin-left: 280px; 
+        }
+
+        /* モバイル対応 */
+        @media (max-width: 768px) {
+            .sidebar-desktop { display: none; } 
+            .content { margin-left: 0; padding: 15px; margin-top: 60px; }
+        }
+
+        /* 共通スタイル */
+        .card { background-color: #313338; border: none; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .card-header { background-color: #2b2d31; border-bottom: 1px solid #1e1f22; font-weight: bold; }
+        .form-control, .form-select { background-color: #1e1f22; border: none; color: #dbdee1; }
+        .form-control:focus, .form-select:focus { background-color: #1e1f22; color: #fff; box-shadow: none; border: 1px solid #5865F2; }
+        .btn-primary { background-color: #5865F2; border: none; }
+        .btn-primary:hover { background-color: #4752c4; }
+        .nav-pills .nav-link { color: #dbdee1; border-radius: 4px; margin-bottom: 5px; cursor: pointer; }
+        .nav-pills .nav-link.active { background-color: #404249; color: #fff; }
+        .admin-badge { background-color: #da373c; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7em; vertical-align: middle; }
+        .table { --bs-table-bg: transparent; --bs-table-color: #dbdee1; }
+        .table td, .table th { border-color: #1e1f22; vertical-align: middle; }
+        .progress { background-color: #1e1f22; height: 25px; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark fixed-top d-md-none shadow">
+  <div class="container-fluid">
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <span class="navbar-brand mb-0 h1 text-truncate" style="max-width: 70%;"><%= guild.name %></span>
+  </div>
+</nav>
+
+<div class="sidebar-desktop d-none d-md-block">
+    <h4 class="mb-4 text-white text-truncate">
+        <% if (guild.icon) { %>
+            <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" width="32" height="32" class="rounded-circle me-2">
+        <% } else { %>
+            <div class="d-inline-block rounded-circle bg-secondary text-white text-center me-2" style="width:32px; height:32px; line-height:32px;"><%= guild.name.substring(0,1) %></div>
+        <% } %>
+        <%= guild.name %>
+    </h4>
+    <%- include('sidebar_menu') %>
+</div>
+
+<div class="offcanvas offcanvas-start text-bg-dark" tabindex="-1" id="mobileSidebar">
+  <div class="offcanvas-header border-bottom border-secondary">
+    <h5 class="offcanvas-title text-truncate">
+        <% if (guild.icon) { %>
+            <img src="https://cdn.discordapp.com/icons/<%= guild.id %>/<%= guild.icon %>.png" width="24" height="24" class="rounded-circle me-2">
+        <% } %>
+        <%= guild.name %>
+    </h5>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body">
+    <%- include('sidebar_menu') %>
+  </div>
+</div>
+
+<div class="content">
+    
+    <% if (messages.error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><%= messages.error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+    <% if (messages.success) { %>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i><%= messages.success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <div class="tab-content" id="v-pills-tabContent">
+        <%- include('partials/tab_general') %>
+        <%- include('partials/tab_dictionary') %>
+        <%- include('partials/tab_autojoin') %>
+        <%- include('partials/tab_usage') %>
+    </div>
+</div>
+
+<%- include('partials/modals') %>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // --- データ注入 ---
+    const speakersData = <%- JSON.stringify([...speakers.map(s => ({...s, type: 'voicevox'})), ...ojtSpeakers.map(s => ({...s, type: 'ojt'}))]) %>;
+    
+    // 現在の設定
+    const currentSettings = {
+        type: "<%= userSettings.speaker_type || 'voicevox' %>",
+        id: <%= userSettings.speaker_id || 1 %>
+    };
+
+    // --- SpeakerManager クラス (再利用可能なロジック) ---
+    class SpeakerManager {
+        constructor(charSelectId, styleSelectId, hiddenInputId) {
+            this.charSelect = document.getElementById(charSelectId);
+            this.styleSelect = document.getElementById(styleSelectId);
+            this.hiddenInput = document.getElementById(hiddenInputId);
+            
+            // イベント設定
+            if (this.charSelect && this.styleSelect) {
+                this.charSelect.addEventListener('change', () => this.updateStyles());
+                this.styleSelect.addEventListener('change', () => this.updateHidden());
+                // 初期化
+                this.initCharSelect();
+            }
+        }
+
+        initCharSelect() {
+            this.charSelect.innerHTML = '';
+            speakersData.forEach(speaker => {
+                const option = document.createElement('option');
+                option.value = speaker.speaker_uuid;
+                option.textContent = `[${speaker.type === 'ojt' ? 'OJT' : 'VOICEVOX'}] ${speaker.name}`;
+                this.charSelect.appendChild(option);
+            });
+        }
+
+        // キャラに対応するスタイルを生成
+        updateStyles() {
+            const selectedUuid = this.charSelect.value;
+            const speaker = speakersData.find(s => s.speaker_uuid === selectedUuid);
+            
+            this.styleSelect.innerHTML = '';
+            if (speaker) {
+                speaker.styles.forEach(style => {
+                    const option = document.createElement('option');
+                    option.value = `${speaker.type}_${style.id}`;
+                    option.textContent = style.name;
+                    this.styleSelect.appendChild(option);
+                });
+            }
+            this.updateHidden();
+        }
+
+        updateHidden() {
+            if (this.hiddenInput) {
+                this.hiddenInput.value = this.styleSelect.value;
+            }
+        }
+
+        // 指定した (type, id) を選択状態にする
+        setSelected(type, id) {
+            id = parseInt(id, 10);
+            let targetSpeaker = null;
+            let targetStyleValue = null;
+
+            for (const sp of speakersData) {
+                if (sp.type === type) {
+                    const style = sp.styles.find(st => st.id === id);
+                    if (style) {
+                        targetSpeaker = sp;
+                        targetStyleValue = `${sp.type}_${style.id}`;
+                        break;
+                    }
+                }
+            }
+
+            if (targetSpeaker) {
+                this.charSelect.value = targetSpeaker.speaker_uuid;
+                this.updateStyles(); // スタイル一覧を再生成
+                this.styleSelect.value = targetStyleValue; // スタイルを選択
+                this.updateHidden();
+            } else {
+                // 見つからない場合は初期値をロード
+                this.updateStyles();
+            }
+        }
+    }
+
+    // 1. メイン設定用のマネージャー起動
+    const mainManager = new SpeakerManager('speakerCharSelect', 'speakerStyleSelect', 'speakerSelectionInput');
+    if (mainManager.charSelect) {
+        mainManager.setSelected(currentSettings.type, currentSettings.id);
+    }
+
+    // 2. モーダル用のマネージャー起動
+    const modalManager = new SpeakerManager('modalCharSelect', 'modalStyleSelect', 'modalSpeakerSelection');
+
+    // --- モーダル制御 (プリセット編集) ---
+    function openEditModal(id, name, type, speakerId, speed, pitch) {
+        document.getElementById('editPresetId').value = id;
+        document.getElementById('editPresetName').value = name;
+        
+        // スライダーのセット
+        const speedEl = document.getElementById('modalSpeed');
+        const pitchEl = document.getElementById('modalPitch');
+        speedEl.value = speed;
+        pitchEl.value = pitch;
+        document.getElementById('modalValSpeed').innerText = speed;
+        document.getElementById('modalValPitch').innerText = pitch;
+
+        // 話者のセット
+        modalManager.setSelected(type, speakerId);
+        
+        const modal = new bootstrap.Modal(document.getElementById('editPresetModal'));
+        modal.show();
+    }
+
+    // --- モバイルメニュー ---
+    function closeMobileMenu() {
+        const mobileMenuEl = document.getElementById('mobileSidebar');
+        const mobileMenu = bootstrap.Offcanvas.getInstance(mobileMenuEl);
+        if (mobileMenu) mobileMenu.hide();
+    }
+
+    // --- タブ制御 ---
+    const hash = window.location.hash;
+    if (hash) {
+        const triggerEl = document.querySelector(`button[data-bs-target="#content-${hash.substring(1)}"]`);
+        if (triggerEl) {
+            const tab = new bootstrap.Tab(triggerEl);
+            tab.show();
+        }
+    }
+</script>
+</body>
+</html>

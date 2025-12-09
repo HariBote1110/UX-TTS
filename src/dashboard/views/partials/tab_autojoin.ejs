@@ -1,0 +1,69 @@
+<div class="tab-pane fade" id="content-autojoin">
+    <% if (!isGuildAdmin) { %>
+        <div class="alert alert-warning"><i class="bi bi-lock-fill me-2"></i>この設定は管理者のみ変更可能です。</div>
+    <% } else { %>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-success"><i class="bi bi-check-circle-fill me-2"></i>許可リスト (Allow)</div>
+                <div class="card-body">
+                    <p class="small text-muted">登録すると、これ以外のVCには自動接続しません。</p>
+                    <form action="/dashboard/<%= guild.id %>/autojoin/allow/add" method="POST" class="input-group mb-3">
+                        <select class="form-select" name="channelId"><% voiceChannels.forEach(ch => { %><option value="<%= ch.id %>"><%= ch.name %></option><% }); %></select>
+                        <button class="btn btn-success" type="submit"><i class="bi bi-plus-lg"></i></button>
+                    </form>
+                    <ul class="list-group list-group-flush">
+                        <% allowChannels.forEach(chId => { const chName = voiceChannels.find(c => c.id === chId)?.name || '不明なチャンネル'; %>
+                            <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-volume-up me-2"></i><%= chName %></span>
+                                <form action="/dashboard/<%= guild.id %>/autojoin/allow/delete" method="POST"><input type="hidden" name="channelId" value="<%= chId %>"><button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></button></form>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header text-danger"><i class="bi bi-slash-circle-fill me-2"></i>除外リスト (Ignore)</div>
+                <div class="card-body">
+                    <p class="small text-muted">ここに登録したVCには自動接続しません。</p>
+                    <form action="/dashboard/<%= guild.id %>/autojoin/ignore/add" method="POST" class="input-group mb-3">
+                        <select class="form-select" name="channelId"><% voiceChannels.forEach(ch => { %><option value="<%= ch.id %>"><%= ch.name %></option><% }); %></select>
+                        <button class="btn btn-danger" type="submit"><i class="bi bi-plus-lg"></i></button>
+                    </form>
+                    <ul class="list-group list-group-flush">
+                        <% ignoreChannels.forEach(chId => { const chName = voiceChannels.find(c => c.id === chId)?.name || '不明なチャンネル'; %>
+                            <li class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center">
+                                <span><i class="bi bi-volume-mute me-2"></i><%= chName %></span>
+                                <form action="/dashboard/<%= guild.id %>/autojoin/ignore/delete" method="POST"><input type="hidden" name="channelId" value="<%= chId %>"><button type="submit" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-lg"></i></button></form>
+                            </li>
+                        <% }); %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-4">
+        <div class="card-header text-info"><i class="bi bi-link-45deg me-2"></i>チャンネルペアリング</div>
+        <div class="card-body">
+            <p class="small text-muted">自動接続時の読み上げテキストチャンネルを固定します。</p>
+            <form action="/dashboard/<%= guild.id %>/pair/add" method="POST" class="row g-2 mb-3 align-items-end">
+                <div class="col-md-5"><label class="form-label small">Voice</label><select class="form-select" name="voiceId"><% voiceChannels.forEach(ch => { %><option value="<%= ch.id %>"><%= ch.name %></option><% }); %></select></div>
+                <div class="col-md-5"><label class="form-label small">Text</label><select class="form-select" name="textId"><% textChannels.forEach(ch => { %><option value="<%= ch.id %>"><%= ch.name %></option><% }); %></select></div>
+                <div class="col-md-2"><button class="btn btn-info w-100" type="submit"><i class="bi bi-save"></i> 保存</button></div>
+            </form>
+            <table class="table table-hover">
+                <tbody>
+                    <% channelPairs.forEach(pair => { 
+                        const vcName = voiceChannels.find(c => c.id === pair.voice_channel_id)?.name || 'Unknown VC';
+                        const tcName = textChannels.find(c => c.id === pair.text_channel_id)?.name || 'Unknown TC';
+                    %>
+                    <tr><td><i class="bi bi-volume-up"></i> <%= vcName %></td><td><i class="bi bi-arrow-right"></i></td><td><i class="bi bi-chat-text"></i> <%= tcName %></td><td class="text-end"><form action="/dashboard/<%= guild.id %>/pair/delete" method="POST"><input type="hidden" name="voiceId" value="<%= pair.voice_channel_id %>"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form></td></tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <% } %>
+</div>

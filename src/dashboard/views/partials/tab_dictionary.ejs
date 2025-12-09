@@ -1,0 +1,95 @@
+<div class="tab-pane fade" id="content-dictionary">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-book me-2"></i>辞書一覧 (<%= dictionary.length %>件)</span>
+            
+            <div class="d-flex">
+                <button type="button" class="btn btn-sm btn-outline-warning me-2" data-bs-toggle="modal" data-bs-target="#importDictModal">
+                    <i class="bi bi-download me-1"></i>インポート
+                </button>
+
+                <form action="/dashboard/<%= guild.id %>/dictionary/export" method="GET" class="d-flex align-items-center" target="_blank">
+                    <select name="format" class="form-select form-select-sm me-2 bg-dark text-light border-secondary" style="width:auto;">
+                        <option value="uxtts">UX TTS形式 (JSON)</option>
+                        <option value="voiceroid">VOICEROID互換 (JSON)</option>
+                        <option value="shovel">Shovel互換 (Dict)</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-info text-nowrap"><i class="bi bi-upload me-1"></i>エクスポート</button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
+            <form action="/dashboard/<%= guild.id %>/dictionary/add" method="POST" class="row g-2 mb-4 align-items-end">
+                <div class="col-md-5"><label class="form-label text-muted small">単語</label><input type="text" class="form-control" name="word" placeholder="例: Hello" required></div>
+                <div class="col-md-5"><label class="form-label text-muted small">読み</label><input type="text" class="form-control" name="read" placeholder="例: ハロー" required></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg me-1"></i>追加</button></div>
+            </form>
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead><tr><th>単語</th><th>読み</th><th style="width:100px">操作</th></tr></thead>
+                    <tbody>
+                        <% dictionary.forEach(entry => { %>
+                            <tr>
+                            <td><%= entry.word %></td>
+                            <td><%= entry.read_as %></td>
+                            <td>
+                                <form action="/dashboard/<%= guild.id %>/dictionary/delete" method="POST" style="display:inline;">
+                                    <input type="hidden" name="word" value="<%= entry.word %>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="importDictModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="/dashboard/<%= guild.id %>/dictionary/import" method="POST" enctype="multipart/form-data">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-download me-2"></i>辞書インポート</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">辞書ファイル (JSON, CSV, Dict)</label>
+                        <input type="file" class="form-control bg-dark text-light border-secondary" name="dictFile" required>
+                        <div class="form-text text-muted">
+                            <small>対応: UX TTS(JSON), VoiceVox(JSON), CSV(カンマ/タブ区切り)</small>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">インポートモード</label>
+                        <div class="card bg-secondary bg-opacity-10 border-secondary">
+                            <div class="card-body p-2">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="importMode" id="modeMerge" value="merge" checked>
+                                    <label class="form-check-label" for="modeMerge">
+                                        <strong>追加 / 更新 (Merge)</strong><br>
+                                        <span class="text-muted small">既存の単語と同じものがあれば読み方を更新し、新しい単語は追加します。</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="importMode" id="modeReplace" value="replace">
+                                    <label class="form-check-label text-warning" for="modeReplace">
+                                        <strong>完全上書き (Replace)</strong><br>
+                                        <span class="text-muted small">現在の辞書を<u class="text-danger">全て削除</u>してから、ファイルの内容で置き換えます。</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-warning"><i class="bi bi-download me-1"></i>実行</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
