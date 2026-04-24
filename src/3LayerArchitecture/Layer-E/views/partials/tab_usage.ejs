@@ -1,0 +1,60 @@
+<div class="tab-pane fade" id="content-usage">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header"><i class="bi bi-bar-chart-fill me-2"></i>今月の読み上げ文字数</div>
+                <div class="card-body text-center">
+                    <p class="text-muted small mb-2">集計月</p>
+                    <% if (usage && usage.last_reset_month) { %>
+                        <p class="fw-bold mb-4">
+                            <%= usage.last_reset_month %>
+                        </p>
+                        <% } else { %>
+                            <p class="fw-bold mb-4">-</p>
+                            <% } %>
+
+                                <div class="display-4 fw-bold mb-1">
+                                    <%= usage && usage.count !=null ? Math.floor(usage.count).toLocaleString() : 0 %>
+                                </div>
+                                <p class="text-muted">文字</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-database me-2"></i>設定の統計</div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="fs-2 fw-bold text-primary">
+                                <%= counts ? counts.dictionary : '-' %>
+                            </div>
+                            <div class="text-muted small">辞書</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="fs-2 fw-bold text-info">
+                                <%= counts ? counts.autovc : '-' %>
+                            </div>
+                            <div class="text-muted small">AutoVC</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="fs-2 fw-bold text-warning">
+                                <%= counts ? counts.ignore : '-' %>
+                            </div>
+                            <div class="text-muted small">除外チャンネル</div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="fs-2 fw-bold text-success">
+                                <%= counts ? counts.allow : '-' %>
+                            </div>
+                            <div class="text-muted small">許可チャンネル</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

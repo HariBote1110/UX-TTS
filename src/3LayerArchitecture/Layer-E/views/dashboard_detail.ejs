@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Layer-E Dashboard - <%= selectedGuild.name %></title>
+    <style>
+        body { font-family: "Hiragino Sans", "Yu Gothic", sans-serif; margin: 0; background: #f8fafc; color: #0f172a; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .msg { padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+        .msg-success { background: #dcfce7; color: #166534; }
+        .msg-error { background: #fee2e2; color: #991b1b; }
+        .grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 14px; }
+        .card { background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px; }
+        .value { font-size: 1.4rem; font-weight: 800; }
+        .layout { display: grid; gap: 14px; grid-template-columns: 300px 1fr; }
+        .list { margin: 0; padding-left: 18px; }
+        label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        button { padding: 10px 14px; border: none; background: #0369a1; color: #f0f9ff; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .meta { font-size: 0.9rem; color: #475569; }
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; }
+            .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <div>
+                <h1><%= selectedGuild.name %></h1>
+                <div class="meta">guildId: <code><%= selectedGuild.id %></code> | mode: <code>shared</code></div>
+            </div>
+            <div>
+                <a href="/dashboard">一覧へ戻る</a>
+            </div>
+        </div>
+
+        <% if (messages.success) { %>
+            <div class="msg msg-success"><%= messages.success %></div>
+        <% } %>
+        <% if (messages.error) { %>
+            <div class="msg msg-error"><%= messages.error %></div>
+        <% } %>
+
+        <div class="grid">
+            <div class="card"><div>利用実績 (共有)</div><div class="value"><%= usage?.count ?? 0 %></div></div>
+            <div class="card"><div>辞書件数 (共有)</div><div class="value"><%= counts.dictionary %></div></div>
+            <div class="card"><div>AutoVC 設定数 (共有)</div><div class="value"><%= counts.autovc %></div></div>
+            <div class="card"><div>Ignore チャンネル数 (共有)</div><div class="value"><%= counts.ignore %></div></div>
+            <div class="card"><div>Allow チャンネル数 (共有)</div><div class="value"><%= counts.allow %></div></div>
+            <div class="card"><div>月次カウンタ</div><div class="value"><%= usage?.last_reset_month ?? '-' %></div></div>
+        </div>
+
+        <div class="layout">
+            <div class="card">
+                <h3>Guild 切替</h3>
+                <ul class="list">
+                    <% guilds.forEach((guild) => { %>
+                        <li>
+                            <a href="/dashboard/<%= encodeURIComponent(guild.id) %>"><%= guild.name %></a>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Guild 設定 (共有)</h3>
+                <form method="post" action="/dashboard/<%= encodeURIComponent(selectedGuild.id) %>/guild-settings">
+                    <label>
+                        <input type="checkbox" name="auto_join_enabled" <%= guildSettings?.auto_join_enabled ? 'checked' : '' %> />
+                        自動接続を有効化
+                    </label>
+                    <label>
+                        <input type="checkbox" name="read_join" <%= guildSettings?.read_join ? 'checked' : '' %> />
+                        入室読み上げ
+                    </label>
+                    <label>
+                        <input type="checkbox" name="read_leave" <%= guildSettings?.read_leave ? 'checked' : '' %> />
+                        退室読み上げ
+                    </label>
+                    <label>
+                        <input type="checkbox" name="active_speech" <%= guildSettings?.active_speech ? 'checked' : '' %> />
+                        ActiveSpeech
+                    </label>
+                    <% if (!selectedGuild.isAdmin) { %>
+                        <p class="meta">この Guild で管理者権限がないため更新は拒否されます。</p>
+                    <% } %>
+                    <button type="submit">保存</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

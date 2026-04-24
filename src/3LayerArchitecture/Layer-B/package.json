@@ -1,0 +1,19 @@
+{
+  "name": "ux-tts-layer-b",
+  "version": "1.0.2",
+  "description": "Cache Processor Service",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "dotenv": "^16.3.0",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2"
+  }
+}

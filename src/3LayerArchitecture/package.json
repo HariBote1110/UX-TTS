@@ -1,0 +1,38 @@
+{
+  "name": "ux-tts-suite",
+  "version": "1.0.0-Beta-1y",
+  "description": "UX-TTS-Bot Integrated Runner",
+  "scripts": {
+    "test": "npm run test:layer-a && npm run test:layer-b && npm run test:layer-c && npm run test:layer-d && npm run test:layer-e",
+    "test:layer-a": "cd Layer-A && npm test",
+    "test:layer-b": "cd Layer-B && npm test",
+    "test:layer-c": "cd Layer-C && npm test",
+    "test:layer-d": "cd Layer-D && go test ./... -count=1",
+    "test:layer-e": "cd Layer-E && npm test",
+    "test:integration": "node --test --test-concurrency=1 integration-scenarios/tests/*.test.js",
+    "test:all": "npm test && npm run test:integration",
+    "start": "node startup-tool.js up",
+    "start:single": "node startup-tool.js up --single",
+    "start:bot": "node startup-tool.js bot",
+    "start:bot:single": "node startup-tool.js bot --single",
+    "start:layer-a": "node startup-tool.js bot",
+    "start:layer-a:single": "node startup-tool.js bot --single",
+    "start:e": "node startup-tool.js dashboard",
+    "start:layer-e": "node startup-tool.js dashboard",
+    "start:dashboard": "node startup-tool.js dashboard",
+    "start:up:dashboard": "node startup-tool.js up --with-dashboard",
+    "build:layer-d:win": "./build_layer_d_windows.sh",
+    "build:layer-d:win:all": "./build_layer_d_windows.sh all",
+    "shard:pin": "node startup-tool.js pin",
+    "shard:show": "node startup-tool.js pin --show",
+    "start:legacy": "concurrently --kill-others-on-fail -n \"TTS,CACHE,BOT\" -c \"blue,magenta,green\" \"npm run start:c\" \"npm run start:b\" \"npm run start:a\"",
+    "start:a": "cd Layer-A && cross-env UV_THREADPOOL_SIZE=128 node --dns-result-order=ipv4first index.js",
+    "start:b": "cd Layer-B && node server.js",
+    "start:c": "cd Layer-C && node server.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "supertest": "^7.2.2"
+  }
+}

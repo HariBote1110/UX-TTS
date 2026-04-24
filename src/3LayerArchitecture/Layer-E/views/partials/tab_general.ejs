@@ -1,0 +1,59 @@
+<div class="tab-pane fade show active" id="content-general">
+
+    <% if (isGuildAdmin) { %>
+        <div class="card border-danger">
+            <div class="card-header text-danger"><i class="bi bi-globe me-2"></i>サーバー設定 <span class="admin-badge">Admin
+                    Only</span></div>
+            <div class="card-body">
+                <form action="/dashboard/<%= selectedGuild.id %>/guild-settings" method="POST">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" id="serverAutoJoin" name="auto_join_enabled"
+                            <%=guildSettings && guildSettings.auto_join_enabled ? 'checked' : '' %>>
+                        <label class="form-check-label" for="serverAutoJoin">
+                            <i class="bi bi-robot me-1"></i>サーバー自動接続 <small class="text-muted">-
+                                誰かがVCに入るとBotが接続します</small>
+                        </label>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="readJoin" name="read_join"
+                                    <%=guildSettings && guildSettings.read_join ? 'checked' : '' %>>
+                                <label class="form-check-label" for="readJoin"><i
+                                        class="bi bi-box-arrow-in-right me-1"></i>入室読み上げ</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="readLeave" name="read_leave"
+                                    <%=guildSettings && guildSettings.read_leave ? 'checked' : '' %>>
+                                <label class="form-check-label" for="readLeave"><i
+                                        class="bi bi-box-arrow-right me-1"></i>退出読み上げ</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" id="serverActiveSpeech" name="active_speech"
+                            <%=guildSettings && guildSettings.active_speech ? 'checked' : '' %>>
+                        <label class="form-check-label" for="serverActiveSpeech">
+                            <i class="bi bi-mic-mute me-1"></i>ActiveSpeech (会話優先モード) <small class="text-muted">-
+                                誰かが発話中の間、読み上げを待機します</small>
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg"><i
+                                class="bi bi-save me-2"></i>設定を保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <% } else { %>
+            <div class="alert alert-secondary">
+                <i class="bi bi-lock me-2"></i>サーバー設定の変更には管理者権限が必要です。
+            </div>
+            <% } %>
+
+</div>

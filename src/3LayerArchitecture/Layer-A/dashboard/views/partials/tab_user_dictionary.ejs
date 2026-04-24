@@ -1,0 +1,42 @@
+<div class="tab-pane fade" id="content-user-dictionary">
+    <div class="card">
+        <div class="card-header">
+            <span><i class="bi bi-person-bookmark me-2"></i>マイ辞書 (<%= userPersonalDictionary.length %>/10)</span>
+        </div>
+        <div class="card-body">
+            <p class="text-muted small mb-3">
+                あなたの発言を読み上げるときだけに適用されます。全ギルド共通で Layer-D 設定 DB と同期され、最大 10 語まで登録できます。ギルド共有辞書と同じ語がある場合はマイ辞書が優先されます。
+            </p>
+            <form action="/dashboard/<%= guild.id %>/user-dictionary/add" method="POST" class="row g-2 mb-4 align-items-end">
+                <div class="col-md-5"><label class="form-label text-muted small">単語</label><input type="text" class="form-control" name="word" placeholder="例: Hello" required></div>
+                <div class="col-md-5"><label class="form-label text-muted small">読み</label><input type="text" class="form-control" name="read" placeholder="例: ハロー" required></div>
+                <div class="col-md-2"><button type="submit" class="btn btn-success w-100"><i class="bi bi-plus-lg me-1"></i>追加</button></div>
+            </form>
+            <% if (userPersonalDictionary.length >= 10) { %>
+                <div class="alert alert-warning py-2 small">新しい語は最大 10 件までです。別の語を増やすには一覧から削除するか、既存と同じ表記で読みを上書きしてください。</div>
+            <% } %>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-hover">
+                    <thead><tr><th>単語</th><th>読み</th><th style="width:100px">操作</th></tr></thead>
+                    <tbody>
+                        <% if (userPersonalDictionary.length === 0) { %>
+                            <tr><td colspan="3" class="text-muted text-center">登録がありません</td></tr>
+                        <% } %>
+                        <% userPersonalDictionary.forEach(entry => { %>
+                            <tr>
+                                <td class="text-truncate" style="max-width: 200px;"><%= entry.word %></td>
+                                <td class="text-truncate" style="max-width: 200px;"><%= entry.read_as %></td>
+                                <td>
+                                    <form action="/dashboard/<%= guild.id %>/user-dictionary/delete" method="POST" style="display:inline;">
+                                        <input type="hidden" name="id" value="<%= entry.id %>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

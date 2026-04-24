@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Layer-E Dashboard</title>
+    <style>
+        body { font-family: "Hiragino Sans", "Yu Gothic", sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+        .msg { padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; }
+        .msg-success { background: #dcfce7; color: #166534; }
+        .msg-error { background: #fee2e2; color: #991b1b; }
+        label { font-weight: 700; display: block; margin: 8px 0 4px; }
+        select, button { padding: 10px; border-radius: 8px; border: 1px solid #94a3b8; width: 100%; }
+        button { margin-top: 14px; cursor: pointer; background: #0f766e; color: #ecfeff; border: none; font-weight: 700; }
+        .grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <div>
+                <h1>Layer-E Dashboard</h1>
+                <div>ログイン中: <strong><%= user.username %></strong></div>
+            </div>
+            <div><a href="/auth/logout">ログアウト</a></div>
+        </div>
+
+        <% if (messages.success) { %>
+            <div class="msg msg-success"><%= messages.success %></div>
+        <% } %>
+        <% if (messages.error) { %>
+            <div class="msg msg-error"><%= messages.error %></div>
+        <% } %>
+
+        <div class="card">
+            <h2>Guild を選択</h2>
+            <form method="get" action="/dashboard/open">
+                <div class="grid">
+                    <div>
+                        <label for="guildId">Guild</label>
+                        <select id="guildId" name="guildId" required>
+                            <option value="">選択してください</option>
+                            <% guilds.forEach((guild) => { %>
+                                <option value="<%= guild.id %>"><%= guild.name %> <%= guild.isAdmin ? '' : '(管理権限なし)' %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit">開く</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>注意</h3>
+            <ul>
+                <li>設定系データは全Botで共有されます。</li>
+                <li>利用実績は従来どおり共有表示されます。</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<div class="modal fade" id="savePresetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">プリセットを新規保存</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/dashboard/<%= guild.id %>/preset/add" method="POST">
+                <div class="modal-body">
+                    <p class="small text-muted">現在適用されている設定（話者・速度・ピッチ）を保存します。</p>
+                    <div class="mb-3">
+                        <label class="form-label">プリセット名</label>
+                        <input type="text" class="form-control" name="name" placeholder="例: 早口ずんだもん" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-info">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editPresetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-white">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">プリセットを編集</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/dashboard/<%= guild.id %>/preset/update" method="POST">
+                <input type="hidden" name="presetId" id="editPresetId">
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label">プリセット名</label>
+                        <input type="text" class="form-control" name="name" id="editPresetName" required>
+                    </div>
+
+                    <hr class="border-secondary my-3">
+                    <h6 class="text-muted small mb-3">ボイス設定</h6>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">話者 (Character)</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <select class="form-select form-select-sm" id="modalCharSelect"></select>
+                            </div>
+                            <div class="col-6">
+                                <select class="form-select form-select-sm" id="modalStyleSelect"></select>
+                            </div>
+                        </div>
+                        <input type="hidden" name="speakerSelection" id="modalSpeakerSelection">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">
+                            話速: <span id="modalValSpeed" class="text-white fw-bold">1.0</span>
+                        </label>
+                        <input type="range" class="form-range" name="speed" id="modalSpeed" 
+                               min="0.5" max="2.0" step="0.1" 
+                               oninput="document.getElementById('modalValSpeed').innerText = this.value">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">
+                            ピッチ: <span id="modalValPitch" class="text-white fw-bold">0.00</span>
+                        </label>
+                        <input type="range" class="form-range" name="pitch" id="modalPitch" 
+                               min="-0.15" max="0.15" step="0.01" 
+                               oninput="document.getElementById('modalValPitch').innerText = this.value">
+                    </div>
+
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">更新</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

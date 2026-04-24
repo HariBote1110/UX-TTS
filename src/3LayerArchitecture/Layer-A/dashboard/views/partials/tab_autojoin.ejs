@@ -1,0 +1,319 @@
+<div class="tab-pane fade" id="content-autojoin" role="tabpanel">
+
+    <div class="card border-primary mb-4">
+        <div class="card-header text-primary">
+            <i class="bi bi-robot me-2"></i>自動接続設定 (AutoJoin)
+        </div>
+        <div class="card-body">
+            <form action="/dashboard/<%= guild.id %>/autojoin/toggle" method="POST" class="mb-4">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="autoJoinSwitch" name="enable"
+                        onchange="this.form.submit()" <%=guildSettings.auto_join_enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="autoJoinSwitch"><strong>サーバー全体の自動接続を有効にする</strong></label>
+                </div>
+                <div class="form-text text-muted">OFFの場合、ユーザーごとの自動接続設定が有効な人以外には反応しません。</div>
+            </form>
+
+            <hr class="border-secondary">
+
+            <h5 class="card-title text-light"><i class="bi bi-link-45deg me-2"></i>チャンネルペアリング</h5>
+            <p class="text-muted small">特定のVCに入室した際、読み上げるテキストチャンネルを固定します。</p>
+
+            <div class="table-responsive mb-3">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>トリガーVC</th>
+                            <th>読み上げ対象</th>
+                            <th style="width: 50px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (pairs.length===0) { %>
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">設定なし</td>
+                            </tr>
+                            <% } %>
+                                <% pairs.forEach(pair=> { %>
+                                    <tr>
+                                        <td><i class="bi bi-volume-up me-2 text-muted"></i>
+                                            <%= pair.voice.name %>
+                                        </td>
+                                        <td>
+                                            <% if (pair.isSelf) { %>
+                                                <span class="badge bg-success bg-opacity-75"><i
+                                                        class="bi bi-chat-dots me-1"></i>VC内チャット</span>
+                                                <% } else { %>
+                                                    <i class="bi bi-hash me-2 text-muted"></i>
+                                                    <%= pair.text ? pair.text.name : '(削除済み)' %>
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <form action="/dashboard/<%= guild.id %>/autojoin/pair/delete" method="POST"
+                                                class="d-inline">
+                                                <input type="hidden" name="voice_channel" value="<%= pair.voice.id %>">
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <form action="/dashboard/<%= guild.id %>/autojoin/pair/add" method="POST"
+                class="row g-3 align-items-end border border-secondary p-3 rounded mx-0">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">トリガーVC</label>
+                    <select class="form-select form-select-sm" name="voice_channel" required>
+                        <% voiceChannels.forEach(c=> { %>
+                            <option value="<%= c.id %>">
+                                <%= c.name %>
+                            </option>
+                            <% }); %>
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="form-label small text-muted">読み上げ先</label>
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-text bg-transparent border-secondary text-muted">
+                            <input class="form-check-input mt-0" type="checkbox" name="use_self_text" id="useSelfText"
+                                onchange="toggleTextSelect()">
+                            <label class="form-check-label ms-2 small" for="useSelfText">このVCのチャット</label>
+                        </div>
+                        <select class="form-select" name="text_channel" id="textChannelSelect" required>
+                            <% textChannels.forEach(c=> { %>
+                                <option value="<%= c.id %>"># <%= c.name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary btn-sm w-100"><i
+                            class="bi bi-plus-lg me-1"></i>追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleTextSelect() {
+            const checkbox = document.getElementById('useSelfText');
+            const select = document.getElementById('textChannelSelect');
+            select.disabled = checkbox.checked;
+        }
+    </script>
+
+    <div class="card border-info mb-4">
+        <div class="card-header text-info">
+            <i class="bi bi-door-open me-2"></i>自動VC作成 (AutoVC)
+        </div>
+        <div class="card-body">
+            <p class="text-muted small">
+                「トリガーVC」に入室したユーザー専用のボイスチャンネルを自動作成します。<br>
+                VC内チャットのログを特定のテキストチャンネルに保存することも可能です。
+            </p>
+
+            <div class="table-responsive mb-3">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>トリガーVC</th>
+                            <th>作成先カテゴリ</th>
+                            <th>命名パターン</th>
+                            <th>ログ保存先</th>
+                            <th style="width: 50px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (autovc.length===0) { %>
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">設定なし</td>
+                            </tr>
+                            <% } %>
+                                <% autovc.forEach(g=> { %>
+                                    <tr>
+                                        <td><i class="bi bi-volume-up me-2 text-muted"></i>
+                                            <%= g.trigger.name %>
+                                        </td>
+                                        <td><i class="bi bi-folder me-2 text-warning"></i>
+                                            <%= g.category ? g.category.name : '(削除済み)' %>
+                                        </td>
+                                        <td><code><%= g.naming %></code></td>
+                                        <td>
+                                            <% if (g.archive) { %>
+                                                <i class="bi bi-hash me-2 text-muted"></i>
+                                                <%= g.archive.name %>
+                                                    <% } else { %>
+                                                        <span class="text-muted small">-</span>
+                                                        <% } %>
+                                        </td>
+                                        <td>
+                                            <form action="/dashboard/<%= guild.id %>/autojoin/autovc/delete"
+                                                method="POST" class="d-inline">
+                                                <input type="hidden" name="trigger_vc" value="<%= g.trigger.id %>">
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="accordion" id="accordionAutoVC">
+                <div class="accordion-item bg-transparent border-secondary">
+                    <h2 class="accordion-header" id="headingAutoVC">
+                        <button class="accordion-button collapsed bg-transparent text-light shadow-none" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#collapseAutoVC" aria-expanded="false"
+                            aria-controls="collapseAutoVC">
+                            <i class="bi bi-plus-circle me-2"></i>新規作成ルールを追加
+                        </button>
+                    </h2>
+                    <div id="collapseAutoVC" class="accordion-collapse collapse" aria-labelledby="headingAutoVC"
+                        data-bs-parent="#accordionAutoVC">
+                        <div class="accordion-body">
+                            <form action="/dashboard/<%= guild.id %>/autojoin/autovc/add" method="POST">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">トリガーVC</label>
+                                        <select class="form-select form-select-sm" name="trigger_vc" required>
+                                            <% voiceChannels.forEach(c=> { %>
+                                                <option value="<%= c.id %>">
+                                                    <%= c.name %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">作成先カテゴリ</label>
+                                        <select class="form-select form-select-sm" name="category" required>
+                                            <% categories.forEach(c=> { %>
+                                                <option value="<%= c.id %>">
+                                                    <%= c.name %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">チャンネル名パターン</label>
+                                        <input type="text" class="form-control form-control-sm" name="naming_pattern"
+                                            placeholder="{user}の部屋" value="{user}の部屋" required>
+                                        <div class="form-text text-muted small" style="font-size: 0.75rem;">
+                                            <code>{user}</code> がユーザー名に置換されます。</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small text-muted">ログ保存先 (任意)</label>
+                                        <select class="form-select form-select-sm" name="log_channel">
+                                            <option value="">(保存しない)</option>
+                                            <% textChannels.forEach(c=> { %>
+                                                <option value="<%= c.id %>"># <%= c.name %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 text-end">
+                                        <button type="submit" class="btn btn-outline-info btn-sm"><i
+                                                class="bi bi-save me-1"></i>設定を保存</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card border-secondary mb-4">
+                <div class="card-header text-muted">
+                    <i class="bi bi-slash-circle me-2"></i>除外チャンネル (Ignore)
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-3" style="max-height: 200px; overflow-y: auto;">
+                        <% if (ignoreChannels.length===0) { %>
+                            <li class="list-group-item bg-transparent text-muted text-center small border-secondary">
+                                設定なし</li>
+                            <% } %>
+                                <% ignoreChannels.forEach(c=> { %>
+                                    <li
+                                        class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center border-secondary">
+                                        <span><i class="bi bi-volume-mute me-2 text-muted"></i>
+                                            <%= c.name %>
+                                        </span>
+                                        <form action="/dashboard/<%= guild.id %>/autojoin/ignore/delete" method="POST"
+                                            class="d-inline">
+                                            <input type="hidden" name="channel_id" value="<%= c.id %>">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i
+                                                    class="bi bi-x-lg"></i></button>
+                                        </form>
+                                    </li>
+                                    <% }); %>
+                    </ul>
+                    <form action="/dashboard/<%= guild.id %>/autojoin/ignore/add" method="POST"
+                        class="input-group input-group-sm">
+                        <select class="form-select" name="channel_id">
+                            <% voiceChannels.forEach(c=> { %>
+                                <option value="<%= c.id %>">
+                                    <%= c.name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                        <button class="btn btn-outline-secondary" type="submit">追加</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-success mb-4">
+                <div class="card-header text-success">
+                    <i class="bi bi-check-circle me-2"></i>許可チャンネル (Allow)
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-secondary py-2 small bg-transparent border-secondary text-muted">
+                        <i class="bi bi-info-circle me-1"></i>許可リストがある場合、それ以外のVCには反応しません。
+                    </div>
+                    <ul class="list-group list-group-flush mb-3" style="max-height: 200px; overflow-y: auto;">
+                        <% if (allowChannels.length===0) { %>
+                            <li class="list-group-item bg-transparent text-muted text-center small border-secondary">
+                                設定なし (全チャンネル対象)</li>
+                            <% } %>
+                                <% allowChannels.forEach(c=> { %>
+                                    <li
+                                        class="list-group-item bg-transparent text-light d-flex justify-content-between align-items-center border-secondary">
+                                        <span><i class="bi bi-volume-up me-2 text-success"></i>
+                                            <%= c.name %>
+                                        </span>
+                                        <form action="/dashboard/<%= guild.id %>/autojoin/allow/delete" method="POST"
+                                            class="d-inline">
+                                            <input type="hidden" name="channel_id" value="<%= c.id %>">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i
+                                                    class="bi bi-x-lg"></i></button>
+                                        </form>
+                                    </li>
+                                    <% }); %>
+                    </ul>
+                    <form action="/dashboard/<%= guild.id %>/autojoin/allow/add" method="POST"
+                        class="input-group input-group-sm">
+                        <select class="form-select" name="channel_id">
+                            <% voiceChannels.forEach(c=> { %>
+                                <option value="<%= c.id %>">
+                                    <%= c.name %>
+                                </option>
+                                <% }); %>
+                        </select>
+                        <button class="btn btn-outline-success" type="submit">追加</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
